@@ -6,11 +6,11 @@ export type QuizQuestion = {
   answer: string;
 };
 
-function mockSummary(url: string) {
+function mockSummary(_url: string) {
   return `Summary for ${url}: This video covers key astro-study concepts, including spaced repetition, focused problem-solving, and how to structure study sessions into Focus Bursts and Recharge Orbits. It emphasizes active recall, interleaving subjects, and taking reflective notes. Practical tips are given for planning weekly timetables, tracking attendance accurately, and maintaining a sustainable cadence towards your North Star goals.`;
 }
 
-function mockQuiz(url: string): QuizQuestion[] {
+function mockQuiz(_url: string): QuizQuestion[] {
   return [
     { id: crypto.randomUUID(), type: "mcq", question: "What is a Focus Burst?", options: ["A long break", "A timed study interval", "A random playlist"], answer: "A timed study interval" },
     { id: crypto.randomUUID(), type: "mcq", question: "Which technique enhances retention?", options: ["Passive rereading", "Active recall", "Random scrolling"], answer: "Active recall" },
