@@ -7,7 +7,7 @@ export type QuizQuestion = {
 };
 
 function mockSummary(_url: string) {
-  return `Summary for ${url}: This video covers key astro-study concepts, including spaced repetition, focused problem-solving, and how to structure study sessions into Focus Bursts and Recharge Orbits. It emphasizes active recall, interleaving subjects, and taking reflective notes. Practical tips are given for planning weekly timetables, tracking attendance accurately, and maintaining a sustainable cadence towards your North Star goals.`;
+  return `Summary for ${_url}: This video covers key astro-study concepts, including spaced repetition, focused problem-solving, and how to structure study sessions into Focus Bursts and Recharge Orbits. It emphasizes active recall, interleaving subjects, and taking reflective notes. Practical tips are given for planning weekly timetables, tracking attendance accurately, and maintaining a sustainable cadence towards your North Star goals.`;
 }
 
 function mockQuiz(_url: string): QuizQuestion[] {
