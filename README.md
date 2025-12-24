@@ -1,73 +1,129 @@
-# React + TypeScript + Vite
+# AstroFocus — CosmoStudy (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AstroFocus is a neon-astro themed study tracker focused on persistence, accurate attendance analytics, Pomodoro focus, and a personal knowledge “Wardrobe”. Built with React + Vite + TypeScript.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Astro-Neon UI: deep charcoal background with pink/cyan neon glow accents
+- Dashboard (Mission Control)
+  - North Star Goal + quick save list
+  - Target/Current GPA with Distance-to-Target
+  - Study Timeline (last actions)
+  - Daily Heatmap (neon pink scale)
+  - Weekly Distribution (donut with legend)
+  - Indian Calendar with toggleable custom holidays
+- Timer (AstroFocus Mode)
+  - Pomodoro: Focus Burst / Recharge Orbit
+  - Subject tagging, ambient soundscapes
+  - Session auto-save, action log, XP (+1/min)
+- Assignments (Mission Control)
+  - Priority (Gravity Well): High/Medium/Low
+  - Subtasks/Checklist
+  - Quick Play of first linked subject resource
+  - XP: +50 per completed assignment
+- Attendance (Comprehensive)
+  - Subjects + Weekly Timetable editor (drag-add)
+  - Mark Present/Absent/Cancelled/Leave; Whole Day Leave
+  - Cycle control (start/end), analytics, predictions (target 75%)
+  - Conducted classes computed from timetable across cycle, excluding Cancelled/Leave/Holidays
+  - XP: +10 per Present
+- Wardrobe (Personal Library)
+  - Per-subject notes (markdown-friendly), simple diagram canvas save/load
+  - Resource linking (e.g., YouTube)
+  - AI Summary (~200 words) and AI Quiz (5–10 Qs) via stub/API
+  - Video watch tracking contributes to study minutes and XP
+- Grade Calculator (Academic)
+  - Calculate SGPA based on marks and credits
+  - Subject-wise grade points display
+  - Total credit points and final SGPA calculation
+  - Supports custom grading system (90-100→10, 80-89→9, etc.)
 
-## React Compiler
+## 🧠 Attendance Formula
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Attendance % = (Attended Classes / Total Conducted Classes) × 100
 
-## Expanding the ESLint configuration
+Where Total Conducted Classes for the cycle is derived as:
+Scheduled by Timetable − Cancelled − Whole Day Leave − Holidays (India + custom).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Predictions (target 75%):
+- Skipable: how many future classes can be skipped without dropping below 75%
+- Needed: how many classes to attend consecutively to reach 75%
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🏗️ Tech Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- React 19, TypeScript, Vite 7, TailwindCSS
+- Recharts (charts), react-calendar-heatmap (heatmap)
+- Framer Motion (visuals)
+- LocalStorage persistence
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🔧 Local Development
+
+1) Install
+```
+npm ci
+```
+2) Run dev
+```
+npm run dev
+```
+Visit http://localhost:5173
+
+3) Type-check/build preview
+```
+npm run build
+npm run preview
+```
+Visit http://localhost:4173
+
+## 🚀 Deploy to Vercel (Recommended)
+
+1) Push to GitHub (or GitLab/Bitbucket)
+2) In Vercel → New Project → Import repo
+3) Settings:
+- Framework: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+- Environment variables (optional AI):
+  - `VITE_AI_ENDPOINT` (e.g., https://api.example.com)
+  - `VITE_AI_API_KEY`
+4) Deploy. For SPA deep links, Vercel handles rewrites automatically; if needed, add `vercel.json`:
+```
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔒 Environment Variables (optional)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Supabase (if enabling auth):
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+- AI (optional): `VITE_AI_ENDPOINT`, `VITE_AI_API_KEY`
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 💾 Persistence
+
+All core data (subjects, timetable, attendance records, cycle, study sessions, action log, wardrobe notes/canvas/resources, XP/Levels) is persisted to LocalStorage with hydration guards to prevent accidental overwrites.
+
+## 🏅 XP & Levels
+
+- +1 XP per study minute (timer/video)
+- +50 XP per assignment completed
+- +10 XP per class Present
+- Level thresholds: `[0, 500, 1200, 2500, 4500, 7000]`
+
+## 📦 Scripts
+
+- `npm run dev` — start Vite dev server
+- `npm run build` — type-check and build for production
+- `npm run preview` — serve production build locally
+
+## 📸 Screenshots (placeholders)
+
+- Dashboard — neon mission control
+- Timer — orbital animation
+- Attendance — stats + predictions
+- Wardrobe — notes + AI quiz
+
+## ⚖️ License
+
+MIT — feel free to use, modify, and share.
