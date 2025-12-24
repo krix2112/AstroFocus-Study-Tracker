@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, Link } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import Dashboard from './pages/Dashboard'
 import Timer from './pages/Timer'
 import Assignments from './pages/Assignments'
@@ -43,6 +44,7 @@ export default function App() {
           </footer>
         </main>
       </div>
+      <Analytics />
     </div>
   )
 }
