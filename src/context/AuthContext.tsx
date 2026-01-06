@@ -39,6 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Load user from localStorage on mount
     const loadUser = async () => {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
