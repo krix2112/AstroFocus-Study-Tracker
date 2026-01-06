@@ -4,18 +4,32 @@ import { useNavigate } from "react-router-dom";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 
 export default function Login() {
-  const [rollNo, setRollNo] = useState("");
+  const [rollNoSuffix, setRollNoSuffix] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { signInWithRollNo } = useAuth();
   const navigate = useNavigate();
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numbers
+    const value = e.target.value.replace(/\D/g, '');
+    setRollNoSuffix(value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    
+    if (!rollNoSuffix.trim()) {
+      setError("Please enter your roll number");
+      return;
+    }
+
     setLoading(true);
 
-    const result = await signInWithRollNo(rollNo);
+    // Combine J25 prefix with the entered numbers
+    const fullRollNo = `J25${rollNoSuffix}`;
+    const result = await signInWithRollNo(fullRollNo);
     
     if (result.success) {
       navigate("/");
@@ -44,15 +58,26 @@ export default function Login() {
             <label className="block text-slate-300 text-sm mb-2">
               Roll Number
             </label>
-            <input
-              type="text"
-              value={rollNo}
-              onChange={(e) => setRollNo(e.target.value)}
-              placeholder="Enter your roll number"
-              className="w-full bg-white/10 px-4 py-3 rounded outline-none text-white placeholder-slate-400 border border-white/10 focus:border-neonCyan transition"
-              required
-              disabled={loading || !isSupabaseConfigured}
-            />
+            <div className="flex items-center">
+              <span className="bg-white/10 px-4 py-3 rounded-l border border-white/10 border-r-0 text-white font-semibold">
+                J25
+              </span>
+              <input
+                type="text"
+                value={rollNoSuffix}
+                onChange={handleInputChange}
+                placeholder="Enter numbers only"
+                maxLength={7}
+                className="flex-1 bg-white/10 px-4 py-3 rounded-r outline-none text-white placeholder-slate-400 border border-white/10 focus:border-neonCyan transition"
+                required
+                disabled={loading || !isSupabaseConfigured}
+                pattern="[0-9]*"
+                inputMode="numeric"
+              />
+            </div>
+            <p className="text-slate-400 text-xs mt-1">
+              Format: J25 + your roll number (numbers only)
+            </p>
           </div>
 
           {error && (
@@ -63,7 +88,7 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={loading || !isSupabaseConfigured || !rollNo.trim()}
+            disabled={loading || !isSupabaseConfigured || !rollNoSuffix.trim()}
             className="w-full px-6 py-3 rounded btn-neon hover:bg-white/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Signing in..." : "Sign In / Sign Up"}
