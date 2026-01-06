@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Subject {
@@ -15,11 +15,33 @@ interface SubjectResult {
   gradePoint: number;
 }
 
+const STORAGE_KEY = "gradeCalculatorSubjects";
+
 export default function GradeCalculator() {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+  // Load subjects from localStorage on mount
+  const [subjects, setSubjects] = useState<Subject[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [subjectName, setSubjectName] = useState("");
   const [marks, setMarks] = useState("");
   const [credits, setCredits] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", marks: "", credits: "" });
+
+  // Save subjects to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
+    } catch (error) {
+      console.error("Failed to save subjects to localStorage:", error);
+    }
+  }, [subjects]);
 
   // Convert marks to grade point based on the grading system
   const getGradePoint = (marks: number): number => {
@@ -93,7 +115,55 @@ export default function GradeCalculator() {
   };
 
   const clearAll = () => {
-    setSubjects([]);
+    if (confirm("Are you sure you want to clear all subjects?")) {
+      setSubjects([]);
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
+
+  const startEdit = (subject: Subject) => {
+    setEditingId(subject.id);
+    setEditForm({
+      name: subject.name,
+      marks: subject.marks.toString(),
+      credits: subject.credits.toString(),
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({ name: "", marks: "", credits: "" });
+  };
+
+  const saveEdit = (id: string) => {
+    const marksNum = parseFloat(editForm.marks);
+    const creditsNum = parseFloat(editForm.credits);
+
+    if (
+      !editForm.name.trim() ||
+      isNaN(marksNum) ||
+      marksNum < 0 ||
+      marksNum > 100 ||
+      isNaN(creditsNum) ||
+      creditsNum <= 0
+    ) {
+      return;
+    }
+
+    setSubjects(
+      subjects.map((s) =>
+        s.id === id
+          ? {
+              ...s,
+              name: editForm.name.trim(),
+              marks: marksNum,
+              credits: creditsNum,
+            }
+          : s
+      )
+    );
+    setEditingId(null);
+    setEditForm({ name: "", marks: "", credits: "" });
   };
 
   const results = calculateResults();
@@ -199,26 +269,91 @@ export default function GradeCalculator() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="bg-white/5 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center border border-white/10 hover:border-white/20 transition"
+                  className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"
                 >
-                  <div className="flex-1">
-                    <p className="text-lg font-semibold text-white">
-                      {subject.name}
-                    </p>
-                    <div className="flex gap-4 mt-1 text-sm text-slate-400">
-                      <span>Marks: {subject.marks}</span>
-                      <span>Credits: {subject.credits}</span>
-                      <span className="text-neonCyan">
-                        Grade Point: {getGradePoint(subject.marks)}
-                      </span>
+                  {editingId === subject.id ? (
+                    // Edit Mode
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input
+                          type="text"
+                          placeholder="Subject Name"
+                          value={editForm.name}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, name: e.target.value })
+                          }
+                          className="bg-white/10 px-3 py-2 rounded outline-none text-white placeholder-slate-400"
+                        />
+                        <input
+                          type="number"
+                          placeholder="Marks (0-100)"
+                          value={editForm.marks}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, marks: e.target.value })
+                          }
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          className="bg-white/10 px-3 py-2 rounded outline-none text-white placeholder-slate-400"
+                        />
+                        <input
+                          type="number"
+                          placeholder="Credits"
+                          value={editForm.credits}
+                          onChange={(e) =>
+                            setEditForm({ ...editForm, credits: e.target.value })
+                          }
+                          min="0.5"
+                          step="0.5"
+                          className="bg-white/10 px-3 py-2 rounded outline-none text-white placeholder-slate-400"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => saveEdit(subject.id)}
+                          className="px-4 py-2 rounded bg-green-500/20 text-green-300 hover:bg-green-500/30 transition border border-green-500/30"
+                        >
+                          ✅ Save
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="px-4 py-2 rounded bg-slate-500/20 text-slate-300 hover:bg-slate-500/30 transition border border-slate-500/30"
+                        >
+                          ❌ Cancel
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <button
-                    onClick={() => removeSubject(subject.id)}
-                    className="mt-2 sm:mt-0 px-4 py-1 rounded bg-pink-500/20 text-pink-300 hover:bg-pink-500/30 transition"
-                  >
-                    🗑️ Remove
-                  </button>
+                  ) : (
+                    // View Mode
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                      <div className="flex-1">
+                        <p className="text-lg font-semibold text-white">
+                          {subject.name}
+                        </p>
+                        <div className="flex gap-4 mt-1 text-sm text-slate-400">
+                          <span>Marks: {subject.marks}</span>
+                          <span>Credits: {subject.credits}</span>
+                          <span className="text-neonCyan">
+                            Grade Point: {getGradePoint(subject.marks)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-2 sm:mt-0">
+                        <button
+                          onClick={() => startEdit(subject)}
+                          className="px-4 py-1 rounded bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 transition border border-cyan-500/30"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => removeSubject(subject.id)}
+                          className="px-4 py-1 rounded bg-pink-500/20 text-pink-300 hover:bg-pink-500/30 transition border border-pink-500/30"
+                        >
+                          🗑️ Remove
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </AnimatePresence>
