@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
+import { supabase, isSupabaseConfigured } from "../lib/supabaseClient";
 
 interface Subject {
   id: string;
@@ -15,33 +17,55 @@ interface SubjectResult {
   gradePoint: number;
 }
 
-const STORAGE_KEY = "gradeCalculatorSubjects";
-
 export default function GradeCalculator() {
-  // Load subjects from localStorage on mount
-  const [subjects, setSubjects] = useState<Subject[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
+  const auth = useAuth();
+  const user = auth?.user || null;
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [subjectName, setSubjectName] = useState("");
   const [marks, setMarks] = useState("");
   const [credits, setCredits] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ name: "", marks: "", credits: "" });
 
-  // Save subjects to localStorage whenever they change
+  // Load subjects from database on mount
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
-    } catch (error) {
-      console.error("Failed to save subjects to localStorage:", error);
+    if (!user || !isSupabaseConfigured || !supabase) {
+      setLoading(false);
+      return;
     }
-  }, [subjects]);
+
+    const loadSubjects = async () => {
+      if (!supabase || !user) return;
+      try {
+        const { data, error } = await supabase
+          .from("grade_calculator_subjects")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: true });
+
+        if (error) {
+          console.error("Error loading subjects:", error);
+        } else {
+          setSubjects(
+            (data || []).map((subj) => ({
+              id: subj.id,
+              name: subj.name,
+              marks: Number(subj.marks),
+              credits: Number(subj.credits),
+            }))
+          );
+        }
+      } catch (error) {
+        console.error("Error loading subjects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSubjects();
+  }, [user]);
 
   // Convert marks to grade point based on the grading system
   const getGradePoint = (marks: number): number => {
@@ -82,7 +106,7 @@ export default function GradeCalculator() {
     };
   };
 
-  const addSubject = () => {
+  const addSubject = async () => {
     const marksNum = parseFloat(marks);
     const creditsNum = parseFloat(credits);
 
@@ -92,32 +116,106 @@ export default function GradeCalculator() {
       marksNum < 0 ||
       marksNum > 100 ||
       isNaN(creditsNum) ||
-      creditsNum <= 0
+      creditsNum <= 0 ||
+      !user ||
+      !isSupabaseConfigured ||
+      !supabase
     ) {
       return;
     }
 
-    const newSubject: Subject = {
-      id: crypto.randomUUID(),
-      name: subjectName.trim(),
-      marks: marksNum,
-      credits: creditsNum,
-    };
+    setSyncing(true);
 
-    setSubjects([...subjects, newSubject]);
-    setSubjectName("");
-    setMarks("");
-    setCredits("");
+    try {
+      const { data, error } = await supabase
+        .from("grade_calculator_subjects")
+        .insert([
+          {
+            user_id: user.id,
+            name: subjectName.trim(),
+            marks: marksNum,
+            credits: creditsNum,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error adding subject:", error);
+        alert("Failed to add subject. Please try again.");
+        return;
+      }
+
+      const newSubject: Subject = {
+        id: data.id,
+        name: data.name,
+        marks: Number(data.marks),
+        credits: Number(data.credits),
+      };
+
+      setSubjects([...subjects, newSubject]);
+      setSubjectName("");
+      setMarks("");
+      setCredits("");
+    } catch (error) {
+      console.error("Error adding subject:", error);
+      alert("Failed to add subject. Please try again.");
+    } finally {
+      setSyncing(false);
+    }
   };
 
-  const removeSubject = (id: string) => {
-    setSubjects(subjects.filter((s) => s.id !== id));
+  const removeSubject = async (id: string) => {
+    if (!user || !isSupabaseConfigured || !supabase) return;
+
+    setSyncing(true);
+
+    try {
+      const { error } = await supabase
+        .from("grade_calculator_subjects")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error removing subject:", error);
+        alert("Failed to remove subject. Please try again.");
+        return;
+      }
+
+      setSubjects(subjects.filter((s) => s.id !== id));
+    } catch (error) {
+      console.error("Error removing subject:", error);
+      alert("Failed to remove subject. Please try again.");
+    } finally {
+      setSyncing(false);
+    }
   };
 
-  const clearAll = () => {
-    if (confirm("Are you sure you want to clear all subjects?")) {
+  const clearAll = async () => {
+    if (!confirm("Are you sure you want to clear all subjects?")) return;
+    if (!user || !isSupabaseConfigured || !supabase) return;
+
+    setSyncing(true);
+
+    try {
+      const { error } = await supabase
+        .from("grade_calculator_subjects")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error clearing subjects:", error);
+        alert("Failed to clear subjects. Please try again.");
+        return;
+      }
+
       setSubjects([]);
-      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error("Error clearing subjects:", error);
+      alert("Failed to clear subjects. Please try again.");
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -135,7 +233,7 @@ export default function GradeCalculator() {
     setEditForm({ name: "", marks: "", credits: "" });
   };
 
-  const saveEdit = (id: string) => {
+  const saveEdit = async (id: string) => {
     const marksNum = parseFloat(editForm.marks);
     const creditsNum = parseFloat(editForm.credits);
 
@@ -145,34 +243,83 @@ export default function GradeCalculator() {
       marksNum < 0 ||
       marksNum > 100 ||
       isNaN(creditsNum) ||
-      creditsNum <= 0
+      creditsNum <= 0 ||
+      !user ||
+      !isSupabaseConfigured ||
+      !supabase
     ) {
       return;
     }
 
-    setSubjects(
-      subjects.map((s) =>
-        s.id === id
-          ? {
-              ...s,
-              name: editForm.name.trim(),
-              marks: marksNum,
-              credits: creditsNum,
-            }
-          : s
-      )
-    );
-    setEditingId(null);
-    setEditForm({ name: "", marks: "", credits: "" });
+    setSyncing(true);
+
+    try {
+      const { data, error } = await supabase
+        .from("grade_calculator_subjects")
+        .update({
+          name: editForm.name.trim(),
+          marks: marksNum,
+          credits: creditsNum,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error updating subject:", error);
+        alert("Failed to update subject. Please try again.");
+        return;
+      }
+
+      setSubjects(
+        subjects.map((s) =>
+          s.id === id
+            ? {
+                ...s,
+                name: data.name,
+                marks: Number(data.marks),
+                credits: Number(data.credits),
+              }
+            : s
+        )
+      );
+      setEditingId(null);
+      setEditForm({ name: "", marks: "", credits: "" });
+    } catch (error) {
+      console.error("Error updating subject:", error);
+      alert("Failed to update subject. Please try again.");
+    } finally {
+      setSyncing(false);
+    }
   };
 
   const results = calculateResults();
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <h2 className="text-3xl font-bold gradient-text mb-6">
+          Academic Grade Calculator
+        </h2>
+        <div className="bg-white/5 p-8 rounded-2xl border border-white/10 text-center">
+          <p className="text-slate-400">Loading your subjects...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
       <h2 className="text-3xl font-bold gradient-text mb-6">
         Academic Grade Calculator
       </h2>
+      {syncing && (
+        <div className="bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 p-3 rounded mb-4 text-sm">
+          Syncing with database...
+        </div>
+      )}
 
       {/* Add Subject Form */}
       <div className="bg-white/5 p-6 rounded-2xl mb-6 border border-white/10">
