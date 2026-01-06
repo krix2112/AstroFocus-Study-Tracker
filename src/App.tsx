@@ -28,7 +28,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { user, loading, signOut } = useAuth();
+  const auth = useAuth();
+  const user = auth?.user || null;
+  const loading = auth?.loading ?? true;
+  const signOut = auth?.signOut || (async () => {});
 
   // Show loading while checking auth
   if (loading) {

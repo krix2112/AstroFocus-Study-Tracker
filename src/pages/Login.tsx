@@ -7,7 +7,8 @@ export default function Login() {
   const [rollNoSuffix, setRollNoSuffix] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signInWithRollNo } = useAuth();
+  const auth = useAuth();
+  const signInWithRollNo = auth?.signInWithRollNo;
   const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,6 +23,11 @@ export default function Login() {
     
     if (!rollNoSuffix.trim()) {
       setError("Please enter your roll number");
+      return;
+    }
+
+    if (!signInWithRollNo) {
+      setError("Authentication not available");
       return;
     }
 
