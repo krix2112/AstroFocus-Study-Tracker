@@ -52,7 +52,7 @@ export default function App() {
             </div>
           )}
           <div className="mb-4 p-2 bg-white/5 rounded text-sm">
-            <p className="text-slate-300">Roll No:</p>
+            <p className="text-slate-300">Registration No:</p>
             <p className="text-neonCyan font-semibold">{user.roll_no}</p>
           </div>
           <nav className="flex flex-col gap-2">

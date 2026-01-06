@@ -78,3 +78,4 @@ The current RLS policies allow all operations for simplicity. For production, yo
 - Verify your user is logged in
 - Check Supabase logs for database errors
 
+

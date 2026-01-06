@@ -82,39 +82,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     if (!rollNo.trim()) {
-      return { success: false, error: "Roll number is required" };
+      return { success: false, error: "Registration number is required" };
     }
 
     try {
-      // Check if user exists
+      // Check if user exists in the database
       const { data: existingUser, error: fetchError } = await supabase
         .from("users")
         .select("*")
         .eq("roll_no", rollNo.trim())
         .single();
 
-      let userData: User;
-
-      // Handle fetch error - might be "not found" which is okay, or a real error
+      // If user doesn't exist, don't create them - ask to contact admin
       if (fetchError) {
-        // If it's a "not found" error (PGRST116), user doesn't exist - create them
+        // If it's a "not found" error (PGRST116), user doesn't exist
         if (fetchError.code === 'PGRST116' || fetchError.message?.includes('No rows')) {
-          // User doesn't exist, create new user
-          const { data: newUser, error: insertError } = await supabase
-            .from("users")
-            .insert([{ roll_no: rollNo.trim() }])
-            .select()
-            .single();
-
-          if (insertError || !newUser) {
-            console.error("Insert error:", insertError);
-            return { 
-              success: false, 
-              error: insertError?.message || insertError?.code || "Failed to create user. Please check if the database table exists." 
-            };
-          }
-
-          userData = newUser;
+          return { 
+            success: false, 
+            error: "This registration number is not registered. Please contact the admin to get access to the app." 
+          };
         } else {
           // Real error occurred
           console.error("Fetch error:", fetchError);
@@ -123,31 +109,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             error: `Database error: ${fetchError.message || fetchError.code || "Failed to fetch user"}. Please check your database connection.` 
           };
         }
-      } else if (existingUser) {
-        // User exists, sign them in
-        userData = existingUser;
-      } else {
-        // No user found, create new one
-        const { data: newUser, error: insertError } = await supabase
-          .from("users")
-          .insert([{ roll_no: rollNo.trim() }])
-          .select()
-          .single();
+      }
 
-        if (insertError || !newUser) {
-          console.error("Insert error:", insertError);
-          return { 
-            success: false, 
-            error: insertError?.message || insertError?.code || "Failed to create user. Please check if the database table exists." 
-          };
-        }
-
-        userData = newUser;
+      // User exists, sign them in
+      if (!existingUser) {
+        return { 
+          success: false, 
+          error: "This registration number is not registered. Please contact the admin to get access to the app." 
+        };
       }
 
       // Store user in state and localStorage
-      setUser(userData);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+      setUser(existingUser);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(existingUser));
       
       return { success: true };
     } catch (error: any) {

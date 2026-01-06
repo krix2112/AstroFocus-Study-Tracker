@@ -10,7 +10,8 @@ import { getMonthMatrix, isHoliday, getCustomHolidays, setCustomHolidays } from 
 import { quotes } from "../data/quotes";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const auth = useAuth();
+  const user = auth?.user || null;
   const { xp, level, nextLevelXp, currentLevelFloorXp } = useXp();
   const [data, setData] = useState<any[]>([]);
   const [weekly, setWeekly] = useState<any[]>([]);

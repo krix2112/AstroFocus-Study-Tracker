@@ -18,3 +18,4 @@ ON CONFLICT (roll_no) DO NOTHING;
 -- To verify the import, run:
 -- SELECT * FROM users ORDER BY roll_no;
 
+

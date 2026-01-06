@@ -22,7 +22,7 @@ export default function Login() {
     setError("");
     
     if (!rollNoSuffix.trim()) {
-      setError("Please enter your roll number");
+      setError("Please enter your registration number");
       return;
     }
 
@@ -62,7 +62,7 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-slate-300 text-sm mb-2">
-              Roll Number
+              Registration Number
             </label>
             <div className="flex items-center">
               <span className="bg-white/10 px-4 py-3 rounded-l border border-white/10 border-r-0 text-white font-semibold">
@@ -82,7 +82,7 @@ export default function Login() {
               />
             </div>
             <p className="text-slate-400 text-xs mt-1">
-              Format: J25 + your roll number (numbers only)
+              Format: J25 + your registration number (numbers only)
             </p>
           </div>
 
@@ -102,7 +102,7 @@ export default function Login() {
         </form>
 
         <p className="text-slate-400 text-xs mt-4 text-center">
-          Enter your roll number to continue. If you're new, an account will be created automatically.
+          Enter your registration number to continue. If your registration number is not registered, please contact the admin.
         </p>
       </div>
     </div>
