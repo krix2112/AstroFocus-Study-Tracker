@@ -9,24 +9,6 @@ import Wardrobe from './pages/Wardrobe'
 import GradeCalculator from './pages/GradeCalculator'
 import Login from './pages/Login'
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-slate-400">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
-}
-
 export default function App() {
   const auth = useAuth();
   const user = auth?.user || null;
