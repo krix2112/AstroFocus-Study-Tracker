@@ -45,6 +45,12 @@ export default function App() {
       <div className="flex flex-1">
         <aside className="w-56 bg-black/40 p-4 border-r border-white/5">
           <h1 className="text-2xl font-bold gradient-text heading-neon mb-4">CosmoStudy</h1>
+          {user.student_name && (
+            <div className="mb-3 p-3 bg-white/5 rounded-lg border border-neonCyan/30">
+              <p className="text-slate-300 text-xs mb-1">Welcome</p>
+              <p className="text-neonCyan font-bold text-lg">{user.student_name}</p>
+            </div>
+          )}
           <div className="mb-4 p-2 bg-white/5 rounded text-sm">
             <p className="text-slate-300">Roll No:</p>
             <p className="text-neonCyan font-semibold">{user.roll_no}</p>

@@ -3,12 +3,14 @@ import CalendarHeatmap from "react-calendar-heatmap";
 import "react-calendar-heatmap/dist/styles.css";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { useXp } from "../context/XpContext";
+import { useAuth } from "../context/AuthContext";
 import dayjs from "dayjs";
 import { getStudyHistory, getWeeklyData, getWeeklyTotals, getStudyStreak, getPerSubjectHistory, getRecentActions } from "../utils/studyData";
 import { getMonthMatrix, isHoliday, getCustomHolidays, setCustomHolidays } from "../utils/holidays";
 import { quotes } from "../data/quotes";
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { xp, level, nextLevelXp, currentLevelFloorXp } = useXp();
   const [data, setData] = useState<any[]>([]);
   const [weekly, setWeekly] = useState<any[]>([]);
@@ -46,6 +48,13 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 text-center">
+      {user?.student_name && (
+        <div className="mb-6 p-4 bg-white/5 rounded-2xl border border-neonCyan/30">
+          <h1 className="text-2xl font-bold text-neonCyan mb-2">
+            Welcome, {user.student_name}!
+          </h1>
+        </div>
+      )}
       <h2 className="text-3xl font-bold gradient-text mb-6">Stellar Mission Control</h2>
 
       {/* North Star Goal */}

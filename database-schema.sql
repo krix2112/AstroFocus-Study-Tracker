@@ -5,8 +5,12 @@
 CREATE TABLE IF NOT EXISTS users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   roll_no TEXT UNIQUE NOT NULL,
+  student_name TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()) NOT NULL
 );
+
+-- If table already exists, add student_name column
+ALTER TABLE users ADD COLUMN IF NOT EXISTS student_name TEXT;
 
 -- Create grade_calculator_subjects table
 CREATE TABLE IF NOT EXISTS grade_calculator_subjects (

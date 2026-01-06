@@ -5,6 +5,7 @@ import { supabase, isSupabaseConfigured } from "../lib/supabaseClient";
 export interface User {
   id: string;
   roll_no: string;
+  student_name?: string;
   created_at?: string;
 }
 
@@ -77,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithRollNo = async (rollNo: string): Promise<{ success: boolean; error?: string }> => {
     if (!isSupabaseConfigured || !supabase) {
-      return { success: false, error: "Database not configured" };
+      return { success: false, error: "Database not configured. Please check your Supabase settings." };
     }
 
     if (!rollNo.trim()) {
@@ -94,11 +95,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       let userData: User;
 
-      if (existingUser && !fetchError) {
+      // Handle fetch error - might be "not found" which is okay, or a real error
+      if (fetchError) {
+        // If it's a "not found" error (PGRST116), user doesn't exist - create them
+        if (fetchError.code === 'PGRST116' || fetchError.message?.includes('No rows')) {
+          // User doesn't exist, create new user
+          const { data: newUser, error: insertError } = await supabase
+            .from("users")
+            .insert([{ roll_no: rollNo.trim() }])
+            .select()
+            .single();
+
+          if (insertError || !newUser) {
+            console.error("Insert error:", insertError);
+            return { 
+              success: false, 
+              error: insertError?.message || insertError?.code || "Failed to create user. Please check if the database table exists." 
+            };
+          }
+
+          userData = newUser;
+        } else {
+          // Real error occurred
+          console.error("Fetch error:", fetchError);
+          return { 
+            success: false, 
+            error: `Database error: ${fetchError.message || fetchError.code || "Failed to fetch user"}. Please check your database connection.` 
+          };
+        }
+      } else if (existingUser) {
         // User exists, sign them in
         userData = existingUser;
       } else {
-        // User doesn't exist, create new user
+        // No user found, create new one
         const { data: newUser, error: insertError } = await supabase
           .from("users")
           .insert([{ roll_no: rollNo.trim() }])
@@ -106,7 +135,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .single();
 
         if (insertError || !newUser) {
-          return { success: false, error: insertError?.message || "Failed to create user" };
+          console.error("Insert error:", insertError);
+          return { 
+            success: false, 
+            error: insertError?.message || insertError?.code || "Failed to create user. Please check if the database table exists." 
+          };
         }
 
         userData = newUser;
@@ -119,7 +152,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { success: true };
     } catch (error: any) {
       console.error("Sign in error:", error);
-      return { success: false, error: error.message || "An error occurred" };
+      const errorMessage = error?.message || error?.toString() || "An unexpected error occurred";
+      
+      // Check for network errors
+      if (errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('Failed to fetch')) {
+        return { 
+          success: false, 
+          error: "Network error: Unable to connect to database. Please check your internet connection and Supabase configuration." 
+        };
+      }
+      
+      return { success: false, error: errorMessage };
     }
   };
 
