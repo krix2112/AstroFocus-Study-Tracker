@@ -377,7 +377,7 @@ export default function GradeCalculator() {
             </button>
           )}
         </div>
-      </div>
+      </PremiumCard>
 
       {/* Grading System Info */}
       <PremiumCard accent="violet" className="p-6">
@@ -511,7 +511,7 @@ export default function GradeCalculator() {
               ))}
             </AnimatePresence>
           </div>
-        </div>
+        </PremiumCard>
       )}
 
       {/* Results with Charts */}
