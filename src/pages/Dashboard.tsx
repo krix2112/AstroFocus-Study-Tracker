@@ -54,6 +54,9 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-neonCyan mb-2">
             Welcome, {user.student_name}!
           </h1>
+          {user.admission_no && (
+            <p className="text-slate-400 text-sm">Admission No: {user.admission_no}</p>
+          )}
         </div>
       )}
       <h2 className="text-3xl font-bold gradient-text mb-6">Stellar Mission Control</h2>

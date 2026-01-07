@@ -1,16 +1,29 @@
 -- Database Schema for CosmoStudy Grade Calculator
 -- Run this SQL in your Supabase SQL Editor
 
--- Create users table
+-- Create users table with all student details
 CREATE TABLE IF NOT EXISTS users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  roll_no TEXT UNIQUE NOT NULL,
-  student_name TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()) NOT NULL
 );
 
--- If table already exists, add student_name column
+-- Remove old roll_no column if it exists (migration from old schema)
+ALTER TABLE users DROP COLUMN IF EXISTS roll_no;
+
+-- Add columns if they don't exist (handles both new and existing tables)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS admission_no TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS registration_no TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS student_name TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS mobile TEXT;
+
+-- Create unique indexes (will be ignored if they already exist)
+CREATE UNIQUE INDEX IF NOT EXISTS users_admission_no_unique ON users(admission_no) WHERE admission_no IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS users_registration_no_unique ON users(registration_no) WHERE registration_no IS NOT NULL;
+
+-- Create indexes for faster lookups
+CREATE INDEX IF NOT EXISTS idx_users_registration_no ON users(registration_no);
+CREATE INDEX IF NOT EXISTS idx_users_mobile ON users(mobile);
+CREATE INDEX IF NOT EXISTS idx_users_admission_no ON users(admission_no);
 
 -- Create grade_calculator_subjects table
 CREATE TABLE IF NOT EXISTS grade_calculator_subjects (
@@ -30,8 +43,16 @@ CREATE INDEX IF NOT EXISTS idx_grade_calculator_subjects_user_id ON grade_calcul
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE grade_calculator_subjects ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (to allow re-running this script)
+DROP POLICY IF EXISTS "Allow read users" ON users;
+DROP POLICY IF EXISTS "Allow insert users" ON users;
+DROP POLICY IF EXISTS "Users can view own subjects" ON grade_calculator_subjects;
+DROP POLICY IF EXISTS "Users can insert own subjects" ON grade_calculator_subjects;
+DROP POLICY IF EXISTS "Users can update own subjects" ON grade_calculator_subjects;
+DROP POLICY IF EXISTS "Users can delete own subjects" ON grade_calculator_subjects;
+
 -- Create policies for users table
--- Allow anyone to read users (for checking if roll_no exists)
+-- Allow anyone to read users (for checking if registration_no exists)
 CREATE POLICY "Allow read users" ON users
   FOR SELECT
   USING (true);

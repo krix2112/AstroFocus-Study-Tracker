@@ -49,11 +49,14 @@ export default function App() {
             <div className="mb-3 p-3 bg-white/5 rounded-lg border border-neonCyan/30">
               <p className="text-slate-300 text-xs mb-1">Welcome</p>
               <p className="text-neonCyan font-bold text-lg">{user.student_name}</p>
+              {user.admission_no && (
+                <p className="text-slate-400 text-xs mt-1">Admission No: {user.admission_no}</p>
+              )}
             </div>
           )}
           <div className="mb-4 p-2 bg-white/5 rounded text-sm">
             <p className="text-slate-300">Registration No:</p>
-            <p className="text-neonCyan font-semibold">{user.roll_no}</p>
+            <p className="text-neonCyan font-semibold">{user.registration_no}</p>
           </div>
           <nav className="flex flex-col gap-2">
             <Link to="/" className="btn-neon px-2 py-1 rounded">Dashboard</Link>

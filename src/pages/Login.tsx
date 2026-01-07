@@ -4,38 +4,50 @@ import { useNavigate } from "react-router-dom";
 import { isSupabaseConfigured } from "../lib/supabaseClient";
 
 export default function Login() {
-  const [rollNoSuffix, setRollNoSuffix] = useState("");
+  const [registrationNo, setRegistrationNo] = useState("");
+  const [mobile, setMobile] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const auth = useAuth();
-  const signInWithRollNo = auth?.signInWithRollNo;
+  const signInWithRegistrationAndMobile = auth?.signInWithRegistrationAndMobile;
   const navigate = useNavigate();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRegistrationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow numbers
     const value = e.target.value.replace(/\D/g, '');
-    setRollNoSuffix(value);
+    setRegistrationNo(value);
+  };
+
+  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numbers
+    const value = e.target.value.replace(/\D/g, '');
+    setMobile(value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     
-    if (!rollNoSuffix.trim()) {
+    if (!registrationNo.trim()) {
       setError("Please enter your registration number");
       return;
     }
 
-    if (!signInWithRollNo) {
+    if (!mobile.trim()) {
+      setError("Please enter your mobile number");
+      return;
+    }
+
+    if (!signInWithRegistrationAndMobile) {
       setError("Authentication not available");
       return;
     }
 
     setLoading(true);
 
-    // Combine J25 prefix with the entered numbers
-    const fullRollNo = `J25${rollNoSuffix}`;
-    const result = await signInWithRollNo(fullRollNo);
+    // Combine J25 prefix with the entered registration number
+    const fullRegistrationNo = `J25${registrationNo}`;
+    const result = await signInWithRegistrationAndMobile(fullRegistrationNo, mobile.trim());
     
     if (result.success) {
       navigate("/");
@@ -70,8 +82,8 @@ export default function Login() {
               </span>
               <input
                 type="text"
-                value={rollNoSuffix}
-                onChange={handleInputChange}
+                value={registrationNo}
+                onChange={handleRegistrationChange}
                 placeholder="Enter numbers only"
                 maxLength={7}
                 className="flex-1 bg-white/10 px-4 py-3 rounded-r outline-none text-white placeholder-slate-400 border border-white/10 focus:border-neonCyan transition"
@@ -86,6 +98,27 @@ export default function Login() {
             </p>
           </div>
 
+          <div>
+            <label className="block text-slate-300 text-sm mb-2">
+              Mobile Number
+            </label>
+            <input
+              type="text"
+              value={mobile}
+              onChange={handleMobileChange}
+              placeholder="Enter your mobile number"
+              maxLength={10}
+              className="w-full bg-white/10 px-4 py-3 rounded outline-none text-white placeholder-slate-400 border border-white/10 focus:border-neonCyan transition"
+              required
+              disabled={loading || !isSupabaseConfigured}
+              pattern="[0-9]*"
+              inputMode="numeric"
+            />
+            <p className="text-slate-400 text-xs mt-1">
+              Enter the mobile number registered with your admission
+            </p>
+          </div>
+
           {error && (
             <div className="bg-red-500/20 border border-red-500/30 text-red-300 p-3 rounded text-sm">
               {error}
@@ -94,15 +127,15 @@ export default function Login() {
 
           <button
             type="submit"
-            disabled={loading || !isSupabaseConfigured || !rollNoSuffix.trim()}
+            disabled={loading || !isSupabaseConfigured || !registrationNo.trim() || !mobile.trim()}
             className="w-full px-6 py-3 rounded btn-neon hover:bg-white/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Signing in..." : "Sign In / Sign Up"}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
         <p className="text-slate-400 text-xs mt-4 text-center">
-          Enter your registration number to continue. If your registration number is not registered, please contact the admin.
+          Enter your registration number and mobile number to continue. If your credentials don't match, please contact the admin.
         </p>
       </div>
     </div>
