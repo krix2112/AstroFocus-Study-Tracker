@@ -13,7 +13,8 @@ import {
   HiLogout,
   HiMoon,
   HiSun,
-  HiLightBulb
+  HiLightBulb,
+  HiChartBar
 } from "react-icons/hi";
 
 interface NavItem {
@@ -25,6 +26,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: "/", label: "Mission Control", icon: HiHome, category: "home" },
+  { path: "/progress-tracker", label: "Progress Tracker", icon: HiChartBar, category: "academics" },
   { path: "/cgpa-tracker", label: "CGPA Tracker", icon: HiAcademicCap, category: "academics" },
   { path: "/grade-calculator", label: "Grade Calculator", icon: HiCalculator, category: "academics" },
   { path: "/attendance", label: "Attendance", icon: HiCalendar, category: "academics" },

@@ -2,12 +2,14 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { useAuth } from './context/AuthContext'
 import Navigation from './components/Navigation'
+import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Timer from './pages/Timer'
 import Assignments from './pages/Assignments'
 import Attendance from './pages/Attendance'
 import Wardrobe from './pages/Wardrobe'
 import GradeCalculator from './pages/GradeCalculator'
+import ProgressTracker from './pages/ProgressTracker'
 import Login from './pages/Login'
 
 export default function App() {
@@ -24,14 +26,15 @@ export default function App() {
     );
   }
 
-  // If not authenticated, show login
+  // If not authenticated, show home or login
   if (!user) {
     return (
       <div className="flex min-h-screen relative flex-col bg-bg-primary">
         <div className="onestop-bg" />
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Analytics />
       </div>
@@ -48,6 +51,7 @@ export default function App() {
           <div className="max-w-7xl mx-auto p-6">
             <Routes>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/progress-tracker" element={<ProgressTracker />} />
               <Route path="/timer" element={<Timer />} />
               <Route path="/assignments" element={<Assignments />} />
               <Route path="/attendance" element={<Attendance />} />
