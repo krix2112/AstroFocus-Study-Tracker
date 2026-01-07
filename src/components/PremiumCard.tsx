@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface PremiumCardProps {
   children: ReactNode;
@@ -24,4 +24,5 @@ export default function PremiumCard({
     </div>
   );
 }
+
 

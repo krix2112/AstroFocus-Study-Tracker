@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import PremiumCard from "./PremiumCard";
 
 interface MetricCardProps {
@@ -15,8 +15,7 @@ export default function MetricCard({
   value, 
   subtitle, 
   icon,
-  accent = "cyan",
-  trend
+  accent = "cyan"
 }: MetricCardProps) {
   const accentColors = {
     cyan: "text-accent-cyan",
@@ -46,4 +45,5 @@ export default function MetricCard({
     </PremiumCard>
   );
 }
+
 

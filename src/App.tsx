@@ -14,7 +14,6 @@ export default function App() {
   const auth = useAuth();
   const user = auth?.user || null;
   const loading = auth?.loading ?? true;
-  const signOut = auth?.signOut || (async () => {});
 
   // Show loading while checking auth
   if (loading) {

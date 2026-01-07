@@ -9,7 +9,6 @@ import {
   HiClock,
   HiBookOpen,
   HiSparkles,
-  HiUser,
   HiCog,
   HiLogout,
   HiMoon,
@@ -37,7 +36,9 @@ const navItems: NavItem[] = [
 
 export default function Navigation() {
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const auth = useAuth();
+  const user = auth?.user || null;
+  const signOut = auth?.signOut || (async () => {});
   const { theme, toggleTheme } = useTheme();
 
   const isActive = (path: string) => {
