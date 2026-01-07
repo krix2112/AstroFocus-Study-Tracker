@@ -59,25 +59,26 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="bg-white/5 p-8 rounded-2xl border border-white/10 max-w-md w-full">
-        <h2 className="text-3xl font-bold gradient-text mb-6 text-center">
-          CosmoStudy Login
+    <div className="min-h-screen flex items-center justify-center p-6 relative z-10">
+      <div className="glass-card p-8 max-w-md w-full animate-fade-in">
+        <h2 className="text-3xl font-bold gradient-onestop mb-2 text-center">
+          ONE STOP
         </h2>
+        <p className="text-center text-text-tertiary text-sm mb-6">Academic Command Center</p>
         
         {!isSupabaseConfigured && (
-          <div className="bg-red-500/20 border border-red-500/30 text-red-300 p-4 rounded mb-4 text-sm">
+          <div className="bg-red-500/20 border border-red-500/30 text-red-300 p-4 rounded-lg mb-4 text-sm glass-card">
             Missing Supabase configuration. Please configure your database.
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-slate-300 text-sm mb-2">
+            <label className="block text-text-primary text-sm font-medium mb-2">
               Registration Number
             </label>
             <div className="flex items-center">
-              <span className="bg-white/10 px-4 py-3 rounded-l border border-white/10 border-r-0 text-white font-semibold">
+              <span className="bg-surface px-4 py-3 rounded-l-lg border border-border border-r-0 text-text-primary font-semibold">
                 J25
               </span>
               <input
@@ -86,20 +87,20 @@ export default function Login() {
                 onChange={handleRegistrationChange}
                 placeholder="Enter numbers only"
                 maxLength={7}
-                className="flex-1 bg-white/10 px-4 py-3 rounded-r outline-none text-white placeholder-slate-400 border border-white/10 focus:border-neonCyan transition"
+                className="flex-1 bg-surface px-4 py-3 rounded-r-lg outline-none text-text-primary placeholder-text-tertiary border border-border focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/20 transition-all"
                 required
                 disabled={loading || !isSupabaseConfigured}
                 pattern="[0-9]*"
                 inputMode="numeric"
               />
             </div>
-            <p className="text-slate-400 text-xs mt-1">
+            <p className="text-text-tertiary text-xs mt-1.5">
               Format: J25 + your registration number (numbers only)
             </p>
           </div>
 
           <div>
-            <label className="block text-slate-300 text-sm mb-2">
+            <label className="block text-text-primary text-sm font-medium mb-2">
               Mobile Number
             </label>
             <input
@@ -108,19 +109,19 @@ export default function Login() {
               onChange={handleMobileChange}
               placeholder="Enter your mobile number"
               maxLength={10}
-              className="w-full bg-white/10 px-4 py-3 rounded outline-none text-white placeholder-slate-400 border border-white/10 focus:border-neonCyan transition"
+              className="w-full bg-surface px-4 py-3 rounded-lg outline-none text-text-primary placeholder-text-tertiary border border-border focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/20 transition-all"
               required
               disabled={loading || !isSupabaseConfigured}
               pattern="[0-9]*"
               inputMode="numeric"
             />
-            <p className="text-slate-400 text-xs mt-1">
+            <p className="text-text-tertiary text-xs mt-1.5">
               Enter the mobile number registered with your admission
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-500/20 border border-red-500/30 text-red-300 p-3 rounded text-sm">
+            <div className="bg-red-500/20 border border-red-500/30 text-red-300 p-3 rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -128,13 +129,13 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading || !isSupabaseConfigured || !registrationNo.trim() || !mobile.trim()}
-            className="w-full px-6 py-3 rounded btn-neon hover:bg-white/10 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-6 py-3 rounded-lg btn-premium btn-accent-cyan disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
-        <p className="text-slate-400 text-xs mt-4 text-center">
+        <p className="text-text-tertiary text-xs mt-4 text-center">
           Enter your registration number and mobile number to continue. If your credentials don't match, please contact the admin.
         </p>
       </div>

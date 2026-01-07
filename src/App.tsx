@@ -1,6 +1,7 @@
-import { Routes, Route, Navigate, Link } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { useAuth } from './context/AuthContext'
+import Navigation from './components/Navigation'
 import Dashboard from './pages/Dashboard'
 import Timer from './pages/Timer'
 import Assignments from './pages/Assignments'
@@ -18,8 +19,8 @@ export default function App() {
   // Show loading while checking auth
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-slate-400">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary">
+        <div className="text-text-secondary animate-pulse-slow">Loading ONE STOP...</div>
       </div>
     );
   }
@@ -27,8 +28,8 @@ export default function App() {
   // If not authenticated, show login
   if (!user) {
     return (
-      <div className="flex min-h-screen relative flex-col">
-        <div className="nebula-bg" />
+      <div className="flex min-h-screen relative flex-col bg-bg-primary">
+        <div className="onestop-bg" />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
@@ -40,41 +41,12 @@ export default function App() {
 
   // If authenticated, show main app
   return (
-    <div className="flex min-h-screen relative flex-col">
-      <div className="nebula-bg" />
-      <div className="flex flex-1">
-        <aside className="w-56 bg-black/40 p-4 border-r border-white/5">
-          <h1 className="text-2xl font-bold gradient-text heading-neon mb-4">CosmoStudy</h1>
-          {user.student_name && (
-            <div className="mb-3 p-3 bg-white/5 rounded-lg border border-neonCyan/30">
-              <p className="text-slate-300 text-xs mb-1">Welcome</p>
-              <p className="text-neonCyan font-bold text-lg">{user.student_name}</p>
-              {user.admission_no && (
-                <p className="text-slate-400 text-xs mt-1">Admission No: {user.admission_no}</p>
-              )}
-            </div>
-          )}
-          <div className="mb-4 p-2 bg-white/5 rounded text-sm">
-            <p className="text-slate-300">Registration No:</p>
-            <p className="text-neonCyan font-semibold">{user.registration_no}</p>
-          </div>
-          <nav className="flex flex-col gap-2">
-            <Link to="/" className="btn-neon px-2 py-1 rounded">Dashboard</Link>
-            <Link to="/timer" className="btn-neon px-2 py-1 rounded">Timer</Link>
-            <Link to="/assignments" className="btn-neon px-2 py-1 rounded">Assignments</Link>
-            <Link to="/attendance" className="btn-neon px-2 py-1 rounded">Attendance</Link>
-            <Link to="/grade-calculator" className="btn-neon px-2 py-1 rounded">Grade Calculator</Link>
-            <Link to="/wardrobe" className="btn-neon px-2 py-1 rounded">Wardrobe</Link>
-          </nav>
-          <button
-            onClick={signOut}
-            className="mt-4 w-full px-2 py-1 rounded bg-pink-500/20 text-pink-300 hover:bg-pink-500/30 transition border border-pink-500/30"
-          >
-            Sign Out
-          </button>
-        </aside>
-        <main className="flex-1 p-6 flex flex-col">
-          <div className="flex-1">
+    <div className="flex min-h-screen relative flex-col bg-bg-primary">
+      <div className="onestop-bg" />
+      <div className="flex flex-1 relative z-10">
+        <Navigation />
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto p-6">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/timer" element={<Timer />} />
@@ -82,12 +54,16 @@ export default function App() {
               <Route path="/attendance" element={<Attendance />} />
               <Route path="/grade-calculator" element={<GradeCalculator />} />
               <Route path="/wardrobe" element={<Wardrobe />} />
+              <Route path="/cgpa-tracker" element={<GradeCalculator />} />
+              <Route path="/resources" element={<div className="glass-card p-8"><h2 className="text-2xl font-bold mb-4">Resources</h2><p className="text-text-secondary">Coming soon...</p></div>} />
+              <Route path="/ai-assistant" element={<div className="glass-card p-8"><h2 className="text-2xl font-bold mb-4">AI Assistant</h2><p className="text-text-secondary">Coming soon...</p></div>} />
+              <Route path="/settings" element={<div className="glass-card p-8"><h2 className="text-2xl font-bold mb-4">Settings</h2><p className="text-text-secondary">Coming soon...</p></div>} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>
-          <footer className="mt-auto pt-6 pb-4 text-center border-t border-white/10">
-            <p className="text-slate-400 text-sm">
-              Built by Krishna ❤️
+          <footer className="mt-auto pt-6 pb-4 text-center border-t border-border max-w-7xl mx-auto w-full px-6">
+            <p className="text-text-tertiary text-sm">
+              ONE STOP — Built with precision ❤️
             </p>
           </footer>
         </main>

@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { supabase, isSupabaseConfigured } from "../lib/supabaseClient";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import PremiumCard from "../components/PremiumCard";
+import MetricCard from "../components/MetricCard";
+import { HiAcademicCap, HiChartBar } from "react-icons/hi";
 
 interface Subject {
   id: string;
@@ -299,38 +303,40 @@ export default function GradeCalculator() {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <h2 className="text-3xl font-bold gradient-text mb-6">
-          Academic Grade Calculator
-        </h2>
-        <div className="bg-white/5 p-8 rounded-2xl border border-white/10 text-center">
-          <p className="text-slate-400">Loading your subjects...</p>
+      <div className="space-y-6 animate-fade-in">
+        <div>
+          <h2 className="text-4xl font-bold gradient-onestop mb-2">Grade Calculator</h2>
+          <p className="text-text-tertiary">Track and calculate your academic performance</p>
         </div>
+        <PremiumCard className="p-8 text-center">
+          <p className="text-text-secondary">Loading your subjects...</p>
+        </PremiumCard>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <h2 className="text-3xl font-bold gradient-text mb-6">
-        Academic Grade Calculator
-      </h2>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h2 className="text-4xl font-bold gradient-onestop mb-2">Grade Calculator</h2>
+        <p className="text-text-tertiary">Track and calculate your academic performance</p>
+      </div>
       {syncing && (
-        <div className="bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 p-3 rounded mb-4 text-sm">
+        <div className="bg-accent-cyan/20 border border-accent-cyan/30 text-accent-cyan p-3 rounded-lg mb-4 text-sm glass-card">
           Syncing with database...
         </div>
       )}
 
       {/* Add Subject Form */}
-      <div className="bg-white/5 p-6 rounded-2xl mb-6 border border-white/10">
-        <h3 className="text-xl text-slate-300 mb-4">Add Subject</h3>
+      <PremiumCard accent="cyan" className="p-6">
+        <h3 className="text-xl font-bold text-text-primary mb-4">Add Subject</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <input
             type="text"
             placeholder="Subject Name"
             value={subjectName}
             onChange={(e) => setSubjectName(e.target.value)}
-            className="bg-white/10 px-3 py-2 rounded outline-none text-white placeholder-slate-400"
+            className="bg-surface px-3 py-2 rounded-lg outline-none text-text-primary placeholder-text-tertiary border border-border focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/20 transition-all"
             onKeyPress={(e) => e.key === "Enter" && addSubject()}
           />
           <input
@@ -341,7 +347,7 @@ export default function GradeCalculator() {
             min="0"
             max="100"
             step="0.01"
-            className="bg-white/10 px-3 py-2 rounded outline-none text-white placeholder-slate-400"
+            className="bg-surface px-3 py-2 rounded-lg outline-none text-text-primary placeholder-text-tertiary border border-border focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/20 transition-all"
             onKeyPress={(e) => e.key === "Enter" && addSubject()}
           />
           <input
@@ -351,21 +357,21 @@ export default function GradeCalculator() {
             onChange={(e) => setCredits(e.target.value)}
             min="0.5"
             step="0.5"
-            className="bg-white/10 px-3 py-2 rounded outline-none text-white placeholder-slate-400"
+            className="bg-surface px-3 py-2 rounded-lg outline-none text-text-primary placeholder-text-tertiary border border-border focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/20 transition-all"
             onKeyPress={(e) => e.key === "Enter" && addSubject()}
           />
         </div>
         <div className="flex gap-3 mt-4">
           <button
             onClick={addSubject}
-            className="px-6 py-2 rounded btn-neon hover:bg-white/10 transition"
+            className="px-6 py-2.5 rounded-lg btn-premium btn-accent-cyan"
           >
             ➕ Add Subject
           </button>
           {subjects.length > 0 && (
             <button
               onClick={clearAll}
-              className="px-6 py-2 rounded bg-pink-500/20 text-pink-300 hover:bg-pink-500/30 transition border border-pink-500/30"
+              className="px-6 py-2.5 rounded-lg btn-premium bg-accent-pink/20 text-accent-pink hover:bg-accent-pink/30 border border-accent-pink/30"
             >
               🗑️ Clear All
             </button>
@@ -374,40 +380,40 @@ export default function GradeCalculator() {
       </div>
 
       {/* Grading System Info */}
-      <div className="bg-white/5 p-4 rounded-2xl mb-6 border border-white/10">
-        <h3 className="text-lg text-slate-300 mb-3">Grading System</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-          <div className="text-slate-400">
-            <span className="text-neonCyan">90-100</span> → 10
+      <PremiumCard accent="violet" className="p-6">
+        <h3 className="text-lg font-bold text-text-primary mb-4">Grading System</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+          <div className="text-text-secondary">
+            <span className="text-accent-cyan font-semibold">90-100</span> → <span className="text-text-primary font-bold">10</span>
           </div>
-          <div className="text-slate-400">
-            <span className="text-neonCyan">80-89</span> → 9
+          <div className="text-text-secondary">
+            <span className="text-accent-cyan font-semibold">80-89</span> → <span className="text-text-primary font-bold">9</span>
           </div>
-          <div className="text-slate-400">
-            <span className="text-neonCyan">70-79</span> → 8
+          <div className="text-text-secondary">
+            <span className="text-accent-cyan font-semibold">70-79</span> → <span className="text-text-primary font-bold">8</span>
           </div>
-          <div className="text-slate-400">
-            <span className="text-neonCyan">60-69</span> → 7
+          <div className="text-text-secondary">
+            <span className="text-accent-cyan font-semibold">60-69</span> → <span className="text-text-primary font-bold">7</span>
           </div>
-          <div className="text-slate-400">
-            <span className="text-neonCyan">56-59</span> → 6
+          <div className="text-text-secondary">
+            <span className="text-accent-cyan font-semibold">56-59</span> → <span className="text-text-primary font-bold">6</span>
           </div>
-          <div className="text-slate-400">
-            <span className="text-neonCyan">50-55</span> → 5
+          <div className="text-text-secondary">
+            <span className="text-accent-cyan font-semibold">50-55</span> → <span className="text-text-primary font-bold">5</span>
           </div>
-          <div className="text-slate-400">
-            <span className="text-neonCyan">45-49</span> → 4.5
+          <div className="text-text-secondary">
+            <span className="text-accent-cyan font-semibold">45-49</span> → <span className="text-text-primary font-bold">4.5</span>
           </div>
-          <div className="text-slate-400">
-            <span className="text-pink-400">&lt;45</span> → 0
+          <div className="text-text-secondary">
+            <span className="text-accent-pink font-semibold">&lt;45</span> → <span className="text-text-primary font-bold">0</span>
           </div>
         </div>
-      </div>
+      </PremiumCard>
 
       {/* Subjects List */}
       {subjects.length > 0 && (
-        <div className="bg-white/5 p-6 rounded-2xl mb-6 border border-white/10">
-          <h3 className="text-xl text-slate-300 mb-4">Subjects Added</h3>
+        <PremiumCard accent="violet" className="p-6">
+          <h3 className="text-xl font-bold text-text-primary mb-4">Subjects Added</h3>
           <div className="space-y-3">
             <AnimatePresence>
               {subjects.map((subject) => (
@@ -416,7 +422,7 @@ export default function GradeCalculator() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-white/20 transition"
+                  className="glass-card p-4 hover:bg-surface-hover transition-all"
                 >
                   {editingId === subject.id ? (
                     // Edit Mode
@@ -429,7 +435,7 @@ export default function GradeCalculator() {
                           onChange={(e) =>
                             setEditForm({ ...editForm, name: e.target.value })
                           }
-                          className="bg-white/10 px-3 py-2 rounded outline-none text-white placeholder-slate-400"
+                          className="bg-surface px-3 py-2 rounded-lg outline-none text-text-primary placeholder-text-tertiary border border-border focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/20 transition-all"
                         />
                         <input
                           type="number"
@@ -441,7 +447,7 @@ export default function GradeCalculator() {
                           min="0"
                           max="100"
                           step="0.01"
-                          className="bg-white/10 px-3 py-2 rounded outline-none text-white placeholder-slate-400"
+                          className="bg-surface px-3 py-2 rounded-lg outline-none text-text-primary placeholder-text-tertiary border border-border focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/20 transition-all"
                         />
                         <input
                           type="number"
@@ -452,7 +458,7 @@ export default function GradeCalculator() {
                           }
                           min="0.5"
                           step="0.5"
-                          className="bg-white/10 px-3 py-2 rounded outline-none text-white placeholder-slate-400"
+                          className="bg-surface px-3 py-2 rounded-lg outline-none text-text-primary placeholder-text-tertiary border border-border focus:border-accent-cyan focus:ring-2 focus:ring-accent-cyan/20 transition-all"
                         />
                       </div>
                       <div className="flex gap-2">
@@ -474,13 +480,13 @@ export default function GradeCalculator() {
                     // View Mode
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
                       <div className="flex-1">
-                        <p className="text-lg font-semibold text-white">
+                        <p className="text-lg font-semibold text-text-primary">
                           {subject.name}
                         </p>
-                        <div className="flex gap-4 mt-1 text-sm text-slate-400">
-                          <span>Marks: {subject.marks}</span>
-                          <span>Credits: {subject.credits}</span>
-                          <span className="text-neonCyan">
+                        <div className="flex gap-4 mt-1 text-sm text-text-secondary">
+                          <span>Marks: <span className="text-text-primary font-medium">{subject.marks}</span></span>
+                          <span>Credits: <span className="text-text-primary font-medium">{subject.credits}</span></span>
+                          <span className="text-accent-cyan font-semibold">
                             Grade Point: {getGradePoint(subject.marks)}
                           </span>
                         </div>
@@ -488,13 +494,13 @@ export default function GradeCalculator() {
                       <div className="flex gap-2 mt-2 sm:mt-0">
                         <button
                           onClick={() => startEdit(subject)}
-                          className="px-4 py-1 rounded bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 transition border border-cyan-500/30"
+                          className="px-4 py-1.5 rounded-lg btn-premium bg-accent-cyan/20 text-accent-cyan hover:bg-accent-cyan/30 border border-accent-cyan/30"
                         >
                           ✏️ Edit
                         </button>
                         <button
                           onClick={() => removeSubject(subject.id)}
-                          className="px-4 py-1 rounded bg-pink-500/20 text-pink-300 hover:bg-pink-500/30 transition border border-pink-500/30"
+                          className="px-4 py-1.5 rounded-lg btn-premium bg-accent-pink/20 text-accent-pink hover:bg-accent-pink/30 border border-accent-pink/30"
                         >
                           🗑️ Remove
                         </button>
@@ -508,21 +514,103 @@ export default function GradeCalculator() {
         </div>
       )}
 
-      {/* Results */}
+      {/* Results with Charts */}
       {subjects.length > 0 && (
-        <div className="bg-white/5 p-6 rounded-2xl border border-white/10">
-          <h3 className="text-2xl text-slate-300 mb-4">Results</h3>
+        <>
+          {/* Summary Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <MetricCard
+              label="Total Credits"
+              value={results.totalCredits}
+              icon={<HiAcademicCap className="w-6 h-6" />}
+              accent="cyan"
+            />
+            <MetricCard
+              label="Total Grade Points"
+              value={results.subjectResults.reduce((sum, r) => sum + r.credits * r.gradePoint, 0).toFixed(2)}
+              icon={<HiChartBar className="w-6 h-6" />}
+              accent="violet"
+            />
+            <MetricCard
+              label="Final SGPA"
+              value={results.sgpa.toFixed(2)}
+              subtitle="Semester Grade Point Average"
+              icon={<HiAcademicCap className="w-6 h-6" />}
+              accent="pink"
+            />
+          </div>
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Subject-wise Performance Bar Chart */}
+            <PremiumCard accent="cyan" className="p-6">
+              <h3 className="text-xl font-bold text-text-primary mb-4">Subject Performance</h3>
+              <div className="w-full h-64">
+                <ResponsiveContainer>
+                  <BarChart data={results.subjectResults.map(r => ({ name: r.name, marks: r.marks, gradePoint: r.gradePoint }))}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                    <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
+                    <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: "var(--bg-secondary)", 
+                        border: "1px solid var(--border)", 
+                        color: "var(--text-primary)",
+                        borderRadius: "8px"
+                      }} 
+                    />
+                    <Bar dataKey="marks" fill="var(--accent-cyan)" name="Marks" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </PremiumCard>
+
+            {/* Grade Point Distribution Pie Chart */}
+            <PremiumCard accent="violet" className="p-6">
+              <h3 className="text-xl font-bold text-text-primary mb-4">Grade Point Distribution</h3>
+              <div className="w-full h-64">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={results.subjectResults.map(r => ({ name: r.name, value: r.gradePoint }))}
+                      dataKey="value"
+                      nameKey="name"
+                      outerRadius={80}
+                      innerRadius={40}
+                      paddingAngle={5}
+                    >
+                      {results.subjectResults.map((_, i) => (
+                        <Cell key={i} fill={["var(--accent-cyan)", "var(--accent-violet)", "var(--accent-pink)", "var(--accent-blue)"][i % 4]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: "var(--bg-secondary)", 
+                        border: "1px solid var(--border)", 
+                        color: "var(--text-primary)",
+                        borderRadius: "8px"
+                      }} 
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </PremiumCard>
+          </div>
+
+          {/* Detailed Results */}
+          <PremiumCard accent="blue" className="p-6">
+            <h3 className="text-2xl font-bold text-text-primary mb-4">Detailed Results</h3>
 
           {/* Subject-wise Results Table */}
           <div className="mb-6 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-white/10">
-                  <th className="pb-3 text-slate-300">Subject</th>
-                  <th className="pb-3 text-slate-300">Marks</th>
-                  <th className="pb-3 text-slate-300">Credits</th>
-                  <th className="pb-3 text-slate-300">Grade Point</th>
-                  <th className="pb-3 text-slate-300">Credit × Grade</th>
+                <tr className="border-b border-border">
+                  <th className="pb-3 text-text-primary font-semibold">Subject</th>
+                  <th className="pb-3 text-text-primary font-semibold">Marks</th>
+                  <th className="pb-3 text-text-primary font-semibold">Credits</th>
+                  <th className="pb-3 text-text-primary font-semibold">Grade Point</th>
+                  <th className="pb-3 text-text-primary font-semibold">Credit × Grade</th>
                 </tr>
               </thead>
               <tbody>
@@ -532,15 +620,15 @@ export default function GradeCalculator() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="border-b border-white/5"
+                    className="border-b border-border"
                   >
-                    <td className="py-3 text-white">{result.name}</td>
-                    <td className="py-3 text-slate-300">{result.marks}</td>
-                    <td className="py-3 text-slate-300">{result.credits}</td>
-                    <td className="py-3 text-neonCyan font-semibold">
+                    <td className="py-3 text-text-primary font-medium">{result.name}</td>
+                    <td className="py-3 text-text-secondary">{result.marks}</td>
+                    <td className="py-3 text-text-secondary">{result.credits}</td>
+                    <td className="py-3 text-accent-cyan font-semibold">
                       {result.gradePoint}
                     </td>
-                    <td className="py-3 text-neonPink font-semibold">
+                    <td className="py-3 text-accent-pink font-semibold">
                       {(result.credits * result.gradePoint).toFixed(2)}
                     </td>
                   </motion.tr>
@@ -549,64 +637,38 @@ export default function GradeCalculator() {
             </table>
           </div>
 
-          {/* Summary */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-            <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-              <p className="text-slate-400 text-sm mb-1">Total Credits</p>
-              <p className="text-2xl text-neonCyan font-bold">
-                {results.totalCredits}
+            {/* Formula Display */}
+            <PremiumCard className="p-4 mt-4">
+              <p className="text-text-tertiary text-sm mb-2 font-medium">Formula:</p>
+              <p className="text-text-primary text-sm font-mono mb-2">
+                SGPA = (Σ (credit × gradePoint)) / (Σ credits)
               </p>
-            </div>
-            <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-              <p className="text-slate-400 text-sm mb-1">Total Grade Points</p>
-              <p className="text-2xl text-neonPink font-bold">
-                {results.subjectResults
-                  .reduce(
-                    (sum, r) => sum + r.credits * r.gradePoint,
-                    0
-                  )
-                  .toFixed(2)}
+              <p className="text-text-secondary text-xs">
+                = {results.subjectResults
+                  .map((r) => `${r.credits} × ${r.gradePoint}`)
+                  .join(" + ")}{" "}
+                / {results.totalCredits}
               </p>
-            </div>
-            <div className="bg-white/5 p-4 rounded-xl border border-white/10 glow-border">
-              <p className="text-slate-400 text-sm mb-1">Final SGPA</p>
-              <p className="text-3xl text-white font-bold">
-                {results.sgpa.toFixed(2)}
+              <p className="text-text-secondary text-xs mt-1">
+                = {results.subjectResults
+                  .reduce((sum, r) => sum + r.credits * r.gradePoint, 0)
+                  .toFixed(2)}{" "}
+                / {results.totalCredits} ={" "}
+                <span className="text-accent-cyan font-bold">
+                  {results.sgpa.toFixed(2)}
+                </span>
               </p>
-            </div>
-          </div>
-
-          {/* Formula Display */}
-          <div className="mt-6 p-4 bg-black/20 rounded-xl border border-white/5">
-            <p className="text-slate-400 text-sm mb-2">Formula:</p>
-            <p className="text-slate-300 text-sm font-mono">
-              SGPA = (Σ (credit × gradePoint)) / (Σ credits)
-            </p>
-            <p className="text-slate-400 text-xs mt-2">
-              = {results.subjectResults
-                .map((r) => `${r.credits} × ${r.gradePoint}`)
-                .join(" + ")}{" "}
-              / {results.totalCredits}
-            </p>
-            <p className="text-slate-400 text-xs mt-1">
-              = {results.subjectResults
-                .reduce((sum, r) => sum + r.credits * r.gradePoint, 0)
-                .toFixed(2)}{" "}
-              / {results.totalCredits} ={" "}
-              <span className="text-neonCyan font-bold">
-                {results.sgpa.toFixed(2)}
-              </span>
-            </p>
-          </div>
-        </div>
+            </PremiumCard>
+          </PremiumCard>
+        </>
       )}
 
       {subjects.length === 0 && (
-        <div className="bg-white/5 p-8 rounded-2xl border border-white/10 text-center">
-          <p className="text-slate-400">
+        <PremiumCard className="p-8 text-center">
+          <p className="text-text-secondary">
             Add subjects with marks and credits to calculate your SGPA
           </p>
-        </div>
+        </PremiumCard>
       )}
     </div>
   );
