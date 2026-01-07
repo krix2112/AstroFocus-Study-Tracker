@@ -83,7 +83,6 @@ const featureTiles = [
 export default function Home() {
   const auth = useAuth();
   const user = auth?.user || null;
-  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen p-6 space-y-8 animate-fade-in">

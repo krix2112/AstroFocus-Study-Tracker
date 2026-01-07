@@ -7,14 +7,11 @@ import { VITE_SUPABASE_URL as supabaseUrl, VITE_SUPABASE_ANON_KEY as supabaseAno
 import {
   LineChart,
   Line,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
 } from "recharts";
 import { HiCheckCircle, HiXCircle, HiExclamationCircle } from "react-icons/hi";
 
@@ -80,7 +77,6 @@ export default function ProgressTracker() {
   const [editingSemester, setEditingSemester] = useState<number | null>(null);
   const [editingSgpa, setEditingSgpa] = useState("");
 
-  const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
   // Load data from database
@@ -91,7 +87,6 @@ export default function ProgressTracker() {
 
   async function loadProgressData() {
     if (!user?.id) return;
-    setLoading(true);
     try {
       // Load semester performance data
       const { data: semData, error: semError } = await supabase
@@ -145,8 +140,6 @@ export default function ProgressTracker() {
       }
     } catch (error) {
       console.error("Error loading progress data:", error);
-    } finally {
-      setLoading(false);
     }
   }
 
